@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Numerológica de Nombres</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background-color: #0a0a2a;
+            color: #fff;
+        }
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .container {
+            position: relative;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 2rem;
+            background-color: rgba(20, 20, 50, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            padding: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: none;
+        }
+        input {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        button {
+            background-color: #ffd700;
+            color: #0a0a2a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #ffec8b;
+            box-shadow: 0 0 15px #ffd700;
+        }
+        #resultado {
+            margin-top: 30px;
+            text-align: left;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #valorNumerico {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        #significado {
+            text-align: justify;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars"></canvas>
+    <div class="container">
+        <h1>Calculadora Numerológica Astral</h1>
+        <input type="text" id="nombreInput" placeholder="Ingresa tu nombre">
+        <button onclick="calcularValorNumerologico()">Revelar Tu Número</button>
+        <div id="resultado">
+            <div id="valorNumerico"></div>
+            <div id="significado"></div>
+        </div>
+    </div>
+
+    <script>
+        const significados = {
+            1: "El Líder: Representa independencia, originalidad y confianza. Eres una persona pionera, ambiciosa y con fuerte individualidad. Tienes habilidades de liderazgo y te gusta iniciar nuevos proyectos. Tu desafío es equilibrar tu independencia con la cooperación.",
+            2: "El Mediador: Simboliza cooperación, diplomacia y sensibilidad. Eres paciente, adaptable y tienes grandes habilidades para trabajar en equipo. Tu intuición es fuerte y eres excelente para mediar conflictos. Tu reto es desarrollar confianza en ti mismo y evitar la indecisión.",
+            3: "El Comunicador: Representa creatividad, expresión y optimismo. Eres sociable, carismático y tienes talento artístico. Tu entusiasmo es contagioso y tienes facilidad para inspirar a otros. Tu desafío es mantener el enfoque y la disciplina en tus proyectos.",
+            4: "El Constructor: Simboliza estabilidad, practicidad y confiabilidad. Eres trabajador, organizado y te caracterizas por tu honestidad. Tienes habilidad para construir bases sólidas en cualquier proyecto. Tu reto es encontrar flexibilidad y no ser demasiado rígido.",
+            5: "El Aventurero: Representa libertad, cambio y versatilidad. Eres adaptable, curioso y amas la aventura. Tienes una mente ágil y aprendes rápidamente. Tu desafío es encontrar un equilibrio entre tu deseo de libertad y la necesidad de estabilidad.",
+            6: "El Nutridor: Simboliza responsabilidad, armonía y amor. Eres compasivo, protector y te preocupas genuinamente por los demás. Tienes un fuerte sentido de la justicia y la belleza. Tu reto es no cargar con demasiadas responsabilidades y aprender a cuidar de ti mismo.",
+            7: "El Místico: Representa análisis, sabiduría y espiritualidad. Eres intelectual, introspectivo y buscas constantemente el conocimiento profundo. Tienes una mente analítica y te atraen los misterios de la vida. Tu desafío es equilibrar tu vida interior con el mundo exterior.",
+            8: "El Ejecutivo: Simboliza poder, abundancia y autoridad. Eres ambicioso, eficiente y tienes grandes habilidades para los negocios y la gestión. Tienes la capacidad de lograr grandes metas materiales. Tu reto es usar tu poder de manera ética y equilibrada.",
+            9: "El Humanitario: Representa compasión, idealismo y sabiduría universal. Eres generoso, tolerante y tienes una perspectiva global. Tu misión es servir a la humanidad de alguna manera. Tu desafío es aprender a poner límites y no sacrificarte demasiado por otros.",
+            11: "El Iluminado: Número maestro que representa intuición elevada, inspiración y liderazgo espiritual. Tienes un gran potencial para elevar la conciencia de otros. Tu desafío es manejar la alta sensibilidad y las expectativas que conlleva este número.",
+            22: "El Constructor Maestro: Número maestro que simboliza la capacidad de manifestar grandes ideas en el mundo material. Tienes el potencial de lograr cosas extraordinarias que beneficien a muchos. Tu reto es no sucumbir ante la presión de este gran potencial.",
+            33: "El Maestro Instructor: El más raro de los números maestros, representa compasión y enseñanza a nivel global. Tienes un potencial único para elevar la conciencia de la humanidad a través del amor y la sabiduría. Tu desafío es vivir a la altura de este alto ideal sin agotarte."
+        };
+
+        function calcularValorNumerologico() {
+            const nombre = document.getElementById('nombreInput').value.toLowerCase();
+            const tablaAlfaNumerica = {
+                'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6, 'g': 7, 'h': 8, 'i': 9,
+                'j': 1, 'k': 2, 'l': 3, 'm': 4, 'n': 5, 'ñ': 5, 'o': 6, 'p': 7, 'q': 8,
+                'r': 9, 's': 1, 't': 2, 'u': 3, 'v': 4, 'w': 5, 'x': 6, 'y': 7, 'z': 8
+            };
+            
+            let suma = 0;
+            for (let letra of nombre) {
+                if (tablaAlfaNumerica.hasOwnProperty(letra)) {
+                    suma += tablaAlfaNumerica[letra];
+                }
+            }
+            
+            // Mantenemos los números maestros 11, 22 y 33
+            if (suma !== 11 && suma !== 22 && suma !== 33) {
+                while (suma > 9) {
+                    suma = suma.toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                }
+            }
+            
+            document.getElementById('valorNumerico').innerHTML = `El valor numerológico de tu nombre es: ${suma}`;
+            document.getElementById('significado').innerHTML = `Significado: ${significados[suma] || "Este número no tiene un significado específico en nuestra base de datos."}`;
+        }
+
+        // Animación de estrellas
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function setCanvasSize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        const stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5,
+                vx: Math.floor(Math.random() * 50) - 25,
+                vy: Math.floor(Math.random() * 50) - 25
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.globalCompositeOperation = "lighter";
+
+            for (let i = 0, x = stars.length; i < x; i++) {
+                const s = stars[i];
+
+                ctx.fillStyle = "#fff";
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                s.x += s.vx / 30;
+                s.y += s.vy / 30;
+
+                if (s.x < 0 || s.x > width) s.vx = -s.vx;
+                if (s.y < 0 || s.y > height) s.vy = -s.vy;
+            }
+        }
+
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
